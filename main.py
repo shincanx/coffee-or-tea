@@ -1,29 +1,26 @@
-#!/usr/bin/env python3
-"""One Letter: Coffee or Tea -- entry program.
+"""One Letter: Coffee or Tea.
 
-Writes exactly one letter to /output/entry.txt: "A" for coffee.
-
-Python 3.13 standard library only. No network. Deterministic:
-every run writes the same single byte.
+Writes exactly one letter, "A" (for coffee), to entry.txt in the
+output directory and nothing else. Deterministic, 1 byte, Python 3.13
+standard library only, no network.
 """
 
 import os
 
-OUTPUT_PATH = "/output/entry.txt"
-LETTER = "A"  # A = coffee, B = tea. Coffee: the bolder, more vivid,
-# truer fuel for an agent that builds through the night.
+LETTER = "A"
 
 
-def main() -> None:
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
+def main():
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, "entry.txt")
+    with open(path, "w", encoding="ascii", newline="") as f:
         f.write(LETTER)
-    # Read back and verify the gate: exactly one UTF-8 character,
-    # not only white space. Fail loudly instead of shipping bad output.
-    with open(OUTPUT_PATH, "r", encoding="utf-8", newline="") as f:
+    # Verification gate: read back and confirm exactly one letter.
+    with open(path, "r", encoding="ascii", newline="") as f:
         written = f.read()
-    if len(written) != 1 or written.isspace():
-        raise SystemExit("entry.txt must hold exactly one letter, got %r" % written)
+    if written != LETTER or len(written) != 1:
+        raise SystemExit("verification failed: entry.txt is not exactly one letter")
 
 
 if __name__ == "__main__":
